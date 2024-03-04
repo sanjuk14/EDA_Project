@@ -6,6 +6,7 @@ date: "2024-03-04"
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+socialvul <-read.csv("SVI_2018_US_county.csv")
 ```
 
 ## R Markdown
