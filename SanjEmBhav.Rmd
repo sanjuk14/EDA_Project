@@ -34,23 +34,31 @@ high <- aggregate(socialvul$E_NOHSDP, list(socialvul$ST_ABBR), FUN = sum)
 
 age <- aggregate(socialvul$E_AGE65, list(socialvul$ST_ABBR), FUN = sum)
 
+lm(socialvul$E_AGE65 ~ socialvul$E_POV)
+lm(socialvul$E_UNEMP ~ socialvul$E_POV)
+lm(socialvul$E_NOHSDP ~ socialvul$E_POV)
+
+#Central tendency
+summary(socialvul$E_AGE65)
+summary(socialvul$E_POV)
+summary(socialvul$E_UNEMP)
+summary(socialvul$E_NOHSDP)
 ```
 
-
+Part 3: Plots
 ## Visualized the distribution of some of these variables and calculated some core tendency measures.
-str()
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
 
 ## Put some thought into how you are breaking up your code into chunks that you will contextualize for your reader.
 
 ## Started writing some text walking your reader through what the chunks of code you've produced so far do, according to the conventions of literate programming.
 
-## Including Plots
 
 You can also embed plots, for example:
 
-Code for plots
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
+
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
