@@ -24,44 +24,37 @@ socialvul <- read.csv("SVI_2018_US_county.csv")
 library(dplyr)
 str(socialvul)
 head(socialvul)
+#it provides a general overview of the dataset
+
 
 # find the sum of E_POV after grouping them based on states
 pov <- aggregate(socialvul$E_POV, list(socialvul$ST_ABBR), FUN = sum)
-
+#E_pov is the persons below poverty estimate from 2014-2018. 
 unemp <- aggregate(socialvul$EP_UNEMP, list(socialvul$ST_ABBR), FUN = sum)
+#EP_UNEMP is the unemployment rate. The code groups each of the states based on the unemployment. 
 
 high <- aggregate(socialvul$E_NOHSDP, list(socialvul$ST_ABBR), FUN = sum)
+
 
 age <- aggregate(socialvul$E_AGE65, list(socialvul$ST_ABBR), FUN = sum)
 
 lm(socialvul$E_AGE65 ~ socialvul$E_POV)
 lm(socialvul$E_UNEMP ~ socialvul$E_POV)
 lm(socialvul$E_NOHSDP ~ socialvul$E_POV)
+#this linear regression model between various variables 
 
 #Central tendency
 summary(socialvul$E_AGE65)
 summary(socialvul$E_POV)
 summary(socialvul$E_UNEMP)
 summary(socialvul$E_NOHSDP)
-
-# 
-lmn <- lm(E_AGE65~E_UNEMP+E_NOHSDP, data=socialvul)
-lms <- lm(E_AGE65~E_UNEMP+E_NOHSDP+E_POV, data=socialvul)
-
-summary(lms)
-summary(lmn)
-
-anova(lms)
-anova(lmn)
 ```
 
 Part 3: Plots
 ## Visualized the distribution of some of these variables and calculated some core tendency measures.
 
 ```{r pressure, echo=FALSE}
-
-plot(lmn$residual~lms$residual)
-
+plot(pressure)
 ```
 
 ## Put some thought into how you are breaking up your code into chunks that you will contextualize for your reader.
