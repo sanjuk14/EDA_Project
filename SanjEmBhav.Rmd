@@ -19,6 +19,10 @@ When you click the **Knit** button a document will be generated that includes bo
 summary(cars)
 ```
 
+## Written some code to explore and show your reader the structure of your dataset and the different variables involved, performing some initial data restructuring, filtering, and cleaning.
+## Visualized the distribution of some of these variables and calculated some core tendency measures.
+## Put some thought into how you are breaking up your code into chunks that you will contextualize for your reader.
+## Started writing some text walking your reader through what the chunks of code you've produced so far do, according to the conventions of literate programming.
 ## Including Plots
 
 You can also embed plots, for example:
