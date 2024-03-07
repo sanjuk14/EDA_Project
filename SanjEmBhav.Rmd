@@ -54,7 +54,8 @@ Part 3: Plots
 ## Visualized the distribution of some of these variables and calculated some core tendency measures.
 
 ```{r pressure, echo=FALSE}
-plot(pressure)
+plot(lmn$residual~lms$residual)
+#The linearity of this graph shows us that the inclusion of poverty is worthwhile because it assists with the unexplained variability in the age variable.
 ```
 
 ## Put some thought into how you are breaking up your code into chunks that you will contextualize for your reader.
