@@ -34,7 +34,6 @@ high <- aggregate(socialvul$E_NOHSDP, list(socialvul$ST_ABBR), FUN = sum)
 
 age <- aggregate(socialvul$E_AGE65, list(socialvul$ST_ABBR), FUN = sum)
 
-merged_socialvul <- merge(pov$x, age$x, by = "ST_ABBR", all = FALSE)
 ```
 
 
