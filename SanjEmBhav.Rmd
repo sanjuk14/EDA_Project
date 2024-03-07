@@ -43,13 +43,25 @@ summary(socialvul$E_AGE65)
 summary(socialvul$E_POV)
 summary(socialvul$E_UNEMP)
 summary(socialvul$E_NOHSDP)
+
+# 
+lmn <- lm(E_AGE65~E_UNEMP+E_NOHSDP, data=socialvul)
+lms <- lm(E_AGE65~E_UNEMP+E_NOHSDP+E_POV, data=socialvul)
+
+summary(lms)
+summary(lmn)
+
+anova(lms)
+anova(lmn)
 ```
 
 Part 3: Plots
 ## Visualized the distribution of some of these variables and calculated some core tendency measures.
 
 ```{r pressure, echo=FALSE}
-plot(pressure)
+
+plot(lmn$residual~lms$residual)
+
 ```
 
 ## Put some thought into how you are breaking up your code into chunks that you will contextualize for your reader.
