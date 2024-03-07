@@ -26,11 +26,15 @@ str(socialvul)
 head(socialvul)
 
 # find the sum of E_POV after grouping them based on states
-aggregate(socialvul$E_POV, list(socialvul$ST_ABBR), FUN = sum)
+pov <- aggregate(socialvul$E_POV, list(socialvul$ST_ABBR), FUN = sum)
 
-aggregate(socialvul$EP_UNEMP, list(socialvul$ST_ABBR), FUN = sum)
+unemp <- aggregate(socialvul$EP_UNEMP, list(socialvul$ST_ABBR), FUN = sum)
 
-aggregate(socialvul$E_NOHSDP, list(socialvul$ST_ABBR), FUN = sum)
+high <- aggregate(socialvul$E_NOHSDP, list(socialvul$ST_ABBR), FUN = sum)
+
+age <- aggregate(socialvul$E_AGE65, list(socialvul$ST_ABBR), FUN = sum)
+
+merged_socialvul <- merge(pov$x, age$x, by = "ST_ABBR", all = FALSE)
 ```
 
 
