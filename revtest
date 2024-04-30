@@ -1,0 +1,62 @@
+---
+title: "SAnjEmBhav"
+output: html_document
+date: "2024-03-04"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+socialvul <-read.csv("SVI_2018_US_county.csv")
+```
+
+## R Markdown
+
+## Part 1 
+##Introduction
+
+##Social vulnerability refers to the level of social conditions that are associated with a community and its ability to react and adapt to challenges that it may face. This could be in the form of high poverty, diseases, social conditions, and so much more. We were especially interested in this dataset because it relates to topics like stress and resilience, important topics and skills for us as college students to consistently hone and develop.Important terms to know with regard to this dataset include the Social Vulnerability Index, which can serve as a factor that allows for the early identification of communities that may need more support in times of hazardous conditions. Counties in this dataset are divided into tracts, and 15 factors are measured for each of these tracts. Some examples include floods, disease, chemical exposure, etc.
+
+## Part 2
+## Written some code to explore and show your reader the structure of your dataset and the different variables involved, performing some initial data restructuring, filtering, and cleaning.
+
+```{r cars}
+socialvul <- read.csv("SVI_2018_US_county.csv")
+library(dplyr)
+str(socialvul)
+head(socialvul)
+#it provides a general overview of the dataset
+
+
+# find the sum of E_POV after grouping them based on states
+pov <- aggregate(socialvul$E_POV, list(socialvul$ST_ABBR), FUN = sum)
+#E_pov is the persons below poverty estimate from 2014-2018. 
+unemp <- aggregate(socialvul$EP_UNEMP, list(socialvul$ST_ABBR), FUN = sum)
+#EP_UNEMP is the unemployment rate. The code groups each of the states based on the unemployment. 
+
+high <- aggregate(socialvul$E_NOHSDP, list(socialvul$ST_ABBR), FUN = sum)
+
+
+age <- aggregate(socialvul$E_AGE65, list(socialvul$ST_ABBR), FUN = sum)
+
+lm(socialvul$E_AGE65 ~ socialvul$E_POV)
+lm(socialvul$E_UNEMP ~ socialvul$E_POV)
+lm(socialvul$E_NOHSDP ~ socialvul$E_POV)
+#this linear regression model between various variables 
+
+#Central tendency
+summary(socialvul$E_AGE65)
+summary(socialvul$E_POV)
+summary(socialvul$E_UNEMP)
+summary(socialvul$E_NOHSDP)
+```
+
+install.packages("renv")
+
+library(renv)
+renv::init()
+
+install.packages("tidyverse")
+
+renv::snapshot()
+
+
