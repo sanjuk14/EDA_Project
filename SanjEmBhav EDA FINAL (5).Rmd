@@ -1,0 +1,354 @@
+---
+title: "Sanjana Kunnikuru, Emma Seto, Bhavana Pavuluri, Technical Writing"
+output: html_document
+date: "2024-03-04"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+socialvul <-read.csv("SVI_2018_US_county.csv")
+options(repos = "https://cran.rstudio.com/")
+install.packages("rlang")
+install.packages("ggplot2")
+library(ggplot2)
+install.packages("tidyverse")
+library(tidyverse)
+install.packages("mapproj")
+library(mapproj)
+
+#install.packages("renv")
+
+#library(renv)
+#renv::init()
+
+#install.packages("tidyverse")
+
+#renv::snapshot()
+
+```
+
+Part 1
+
+Introduction
+
+Social vulnerability refers to the level of social conditions that are associated with a community and its ability to react and adapt to challenges that it may face. This could be in the form of high poverty, diseases, social conditions, and so much more. We were especially interested in this dataset because it relates to topics like stress and resilience, important topics and skills for us as college students to consistently hone and develop. Key terms to know with regard to this dataset include the Social Vulnerability Index, which can serve as a factor that allows for the early identification of communities that may need more support in times of hazardous conditions. Counties in this dataset are divided into tracts, and 15 factors are measured for each of these tracts. Some examples include floods, disease, chemical exposure, etc. The source of this data comes from the CDC, and the US database inclues US-wide mapping and analysis. Ethical considerations to take into account for this dataset include any errors in the data or potential biases in data collection that went unaccounted and therefore may have an impact on how resources are allocated in areas that seem to have the greatest social vulnerability. For example, due to data collection errors, income and poverty data was not included for some counties (like Rio Arriba County, New Mexico). Additionally, if surveys were used for quantification of any of the variables, principles like social desirability may play a factor as respondents may lean towards answering questions in specific ways that they deem to be more societally acceptable. Finally, we would like to note that since the dataset does have many variables involved, we focused on techniques such as aggregation and merging to ensure that we could work with a smaller, more manageable dataset (finaldata) for some parts of our analysis. More information regarding this process can be found below.
+
+Part 2
+
+#A) Making a data frame
+
+In the analysis of social vulnerability data from 2018, we chose to filter specific variables: E_POV (the number of civilians below the poverty estimate), E_NOHSDP (the estimated number of civilians aged 25 and older with no high school diploma), EP_UNEMP (the estimated number of civilians age 16 and older who were unemployed), and E_AGE65 (the estimated number of civilians aged 65 and older).
+
+These variables were chosen due to their relevance in assessing social vulnerability and their overarching impacts (education, age, jobs, etc.). Given that each variable had a value for multiple counties within each state, we decided to group the data based on states to make our analysis easier to understand and ultimately analyze.
+
+```{r cars}
+
+# importing the data
+socialvul <- read.csv("SVI_2018_US_county.csv")
+
+# find the average of E_POV after grouping them based on states
+# Aggregate function removes missing values, essentially "cleaning" the dataframe
+pov <- aggregate(socialvul$E_POV, list(socialvul$ST_ABBR), FUN = mean)
+data_pov <- setNames(pov, c("ST_ABBR", "E_POV"))
+```
+
+We used the aggregate function to sum up all estimated numbers within each county for every state. The aggregate function by default does not use cells with missing values when grouping. Thus, this is a primary way that we were able to "clean" our dataset. Following this, we applied the setNames function to assign meaningful column names to the dataset.
+
+```{r cars}
+# find the average of EP_UNEMP after grouping them based on states
+# Aggregate function removes missing values, essentially "cleaning" the dataframe
+unemp <- aggregate(socialvul$EP_UNEMP, list(socialvul$ST_ABBR), FUN = mean)
+data_unemp <- setNames(unemp, c("ST_ABBR", "E_UNEMP"))
+```
+
+```{r cars}
+# find the average of E_NOHSDP after grouping them based on states
+# Aggregate function removes missing values, essentially "cleaning" the dataframe
+high <- aggregate(socialvul$E_NOHSDP, list(socialvul$ST_ABBR), FUN = mean)
+data_high <- setNames(high, c("ST_ABBR", "E_NOHSDP"))
+```
+
+```{r cars}
+# find the average of E_AGE65 after grouping them based on states
+# Aggregate function removes missing values, essentially "cleaning" the dataframe
+age <- aggregate(socialvul$E_AGE65, list(socialvul$ST_ABBR), FUN = mean)
+data_age <- setNames(age, c("ST_ABBR", "E_AGE65"))
+```
+
+```{r cars}
+# merges the individual data frames to create one final data frame
+data1 <- merge(data_pov, data_unemp, by = "ST_ABBR")
+data2 <- merge(data_high, data_age, by = "ST_ABBR")
+finaldata <- merge(data1, data2, by = "ST_ABBR")
+```
+
+To finalize the dataset, the merge function allowed us to combine all variables based on the common variable name, ST_ABBR (state abbreviation). This new dataset allowed us to visualize and calculate statistical data to provide further insights into social vulnerability across different states. We would like to note that in some cases, we switched to the larger dataset because it is more comprehensive and overarching compared to the simplified finaldata dataset.
+
+#B) Summary Statistics
+
+```{r}
+#Central tendency
+summary(finaldata$E_AGE65)
+summary(finaldata$E_POV)
+summary(finaldata$E_UNEMP)
+summary(finaldata$E_NOHSDP)
+
+#Averages of variables of interest by state to see if there is a common state that has the highest number for each category
+
+averagesAGE65 <-tapply(finaldata$E_AGE65, finaldata$ST_ABBR, mean, na.rm = TRUE)
+averagesAGE65
+# California has the highest average
+
+averagesPOV<-tapply(finaldata$E_POV, finaldata$ST_ABBR, mean, na.rm = TRUE)
+averagesPOV
+# Washington DC has the highest average 
+
+averagesUNEMP <-tapply(finaldata$E_UNEMP, finaldata$ST_ABBR, mean, na.rm = TRUE)
+averagesUNEMP
+# Arkansas has the highest average
+
+averagesNOHSDP<-tapply(finaldata$E_NOHSDP, finaldata$ST_ABBR, mean, na.rm = TRUE)
+averagesNOHSDP
+# California has the highest average
+
+# SD of variables of interest by state
+sdAGE65 <-tapply(finaldata$E_AGE65, finaldata$ST_ABBR, sd, na.rm = TRUE)
+sdAGE65
+sdPOV<-tapply(finaldata$E_POV, finaldata$ST_ABBR, sd, na.rm = TRUE)
+sdPOV
+sdUNEMP <-tapply(finaldata$E_UNEMP, finaldata$ST_ABBR, sd, na.rm = TRUE)
+sdUNEMP
+sdNOHSDP<-tapply(finaldata$E_NOHSDP, finaldata$ST_ABBR, sd, na.rm = TRUE)
+sdNOHSDP
+
+# Variance of variables of interest by state
+varAGE65 <-tapply(finaldata$E_AGE65, finaldata$ST_ABBR, var, na.rm = TRUE)
+varAGE65
+varPOV<-tapply(finaldata$E_POV, finaldata$ST_ABBR, var, na.rm = TRUE)
+varPOV
+varUNEMP <-tapply(finaldata$E_UNEMP, finaldata$ST_ABBR, var, na.rm = TRUE)
+varUNEMP
+varNOHSDP<-tapply(finaldata$E_NOHSDP, finaldata$ST_ABBR, var, na.rm = TRUE)
+varNOHSDP
+
+```
+
+There was an average of 965462 people over age 65 across all states. Since the average is much higher than median of 682546, it seems that there are a couple of states - due to states with many cities - with a very high above 65 age population, which skews the data.
+
+#C) ANOVA Tests to further check the impact of adding new variables
+
+This portion of our analysis focused on better understanding the impact of adding an additional explanatory variable to the model (when other explanatory variables are held constant). 
+
+```{r}
+#Checking the impact of the addition of a new variable
+
+# 1) Check the impact of the addition of the E_POV variable when the other variables are held constant 
+lmnpov <- lm(E_AGE65~E_UNEMP+E_NOHSDP, data=finaldata)
+#This variable encapsulated the linear regression model of E_AGE65 with E_UNEMP and E_NOHSDP as factor variables.
+lmspov <- lm(E_AGE65~E_UNEMP+E_NOHSDP+E_POV, data=finaldata)
+#This variable encapsulated the linear regression model of E_AGE65 with E_POV and E_NOHSDP as factor variables.
+summary(lmspov)
+summary(lmnpov)
+x<-anova(lmnpov, lmspov)
+x
+```
+
+With regard to the impact of the E_POV variable (when the other variables are held constant) on the E_AGE65 variable, we conducted an anova test and found that the p-value was .018, which is less than the standard .05 p-value. Thus, we were able to reject the null hypothesis and conclude that the inclusion of the E_POV variable is worthwhile because it assists with significantly explaining the unexplained variability in the age over 65 variable.
+
+```{r}
+# 2) Check the impact of the addition of the E-NOHSDP variable when the other variables are held constant 
+lmnnohsdp <- lm(E_AGE65~E_UNEMP+E_POV, data=finaldata)
+#This variable encapsulated the linear regression model of E_AGE65 with E_UNEMP and E_NOHSDP as factor variables.
+lmsnohsdp <- lm(E_AGE65~E_UNEMP+E_POV+E_NOHSDP, data=finaldata)
+#This variable encapsulated the linear regression model of E_AGE65 with E_POV and E_NOHSDP as factor variables.
+summary(lmnnohsdp)
+summary(lmsnohsdp)
+y<-anova(lmnnohsdp, lmsnohsdp)
+y
+```
+
+Our second test involved assessing the how the addition of the E-NOHSDP variable (when the other variables are held constant) impacted the E_AGE65 variable. Again, through the use of an anova test, we found that the p value was 0.00025, which is significantly less than the typical .05 value. Thus, we were once again able to reject the null hypothesis.
+
+```{r}
+# 3) Check the impact of the addition of the E_UNEMP variable when the other variables are held constant 
+lmnunemp <- lm(E_AGE65~E_NOHSDP+E_POV, data=finaldata)
+#This variable encapsulated the linear regression model of E_AGE65 with E_UNEMP and E_NOHSDP as factor variables.
+lmsunemp <- lm(E_AGE65~E_NOHSDP+E_POV+E_UNEMP, data=finaldata)
+#This variable encapsulated the linear regression model of E_AGE65 with E_POV and E_NOHSDP as factor variables.
+summary(lmnunemp)
+summary(lmsunemp)
+z<-anova(lmnunemp, lmsunemp)
+z
+```
+
+Our last test involved assessing the impact of the addition of the E_UNEMP variable when the other explanatory variables were held constant. Given that the p value was 0.00035, we were once again able to reject the null hypothesis, suggesting that the inclusion of the E_UNEMP variable does significantly assist in explaining the unexplained variability in the age over 65 variable.
+
+R^2 values were also taken into consideration to understand what percent of the variability in the Y value is attributable to the X value. We noted that 88.6% of the variation in the number of people older than 65+ is attributable to variables like the number of people in poverty. 93.1% of the variation in the number of people older than 65% is associated with unemployment rate. 83.98% of the variation in the amount of ppl above 65 years of age is associated with the number of people without a high school diploma.
+
+Part 3: Plots Visualized the distribution of some of these variables and calculated some core tendency measures.
+
+#A) Correlation/Scatterplot matrix
+
+```{r}
+#Correlation/scatterplot matrix
+library(car)
+scatterplotMatrix(~E_AGE65 + ~E_POV + ~E_NOHSDP + ~E_UNEMP, data = finaldata, regLine = TRUE)
+#The curved lines helps us determine the data's trends and helps us to predict unknown data points from the regression
+#The solid line represents the fitted line for the observed data
+```
+
+(Scatterplot matrix analysis): This graph visualizes the relationships among E_AGE65, E_POV, E_NOHSDP, and E_UNEMP in a multivariate scatterplot. Based on the correlation coefficients calculated, the strongest to weakest correlation is E_POV and E_NOHSDP, E_AGE65 and E_POV, E_AGE65 and E_UNEMP, E_UNEMP and E_POV, E_NOHSDP and E_UNEMP, E_AGE65 and E_UNEMP respectively. Based on the graphs, there is a positive relationship between E_AGE65 and E_POV, E_AGE65 and E_NOHSDP, E_AGE65 and E_UNEMP, E_POV and E_NOHSDP, E_POV and E_UNEMP, and E_NOHSDP and E_UNEMP.
+
+#B) Linear Regression Plots
+
+The lm() functions at the beginning of this section show us the linear regression model between an explanatory variable (second variable in the lm function) and a dependent variable (first variable in the lm function). Linear regression essentially aims to serve as a model between two variables by fitting a linear equation to observed data. In a linear regression model there are assumptions that cannot be violated to be able to draw accurate conclusions from the model. The assumptions include linearity, constant variance, and normal distribution. The following graphs for each variable checks if the assumptions have been violated. 
+
+Here are a couple of rephrased definitions to provide more context for each of the 4 plots shown in the scenarios below:
+
+1) Residuals vs fitted -> Fitted values are predicted values of the y variable, while residuals show the difference between fitted and observed values of the y variable
+
+2) QQ Plot:Standardized residuals vs. theoretical quantiles -> this is essentially a comparison of what we would expect if the data followed a certain distribution vs. what was actually observed in the data.
+
+3) Scale-location: sqrt of standardized residuals vs. fitted values -> Fitted values are predicted values of the y variable, while the y axis represents the magnitude of the residuals. This graph specifically presents more info about whether or not there is constant variance in the data.
+
+4)Residuals vs. Leverage: Residuals again describe the differences between observed and expected values, while leverage demonstrates the influence of data points on regression coefficients.
+
+
+```{r}
+#Linear Regression 1
+lm(finaldata$E_AGE65 ~ finaldata$E_POV)
+#QQ Plot (second graph)
+plot(lm(finaldata$E_AGE65 ~ finaldata$E_POV))
+```
+
+1) Residuals vs. Fitted: There is a non linear relationship between the x and y variable because the points are not scattered randomly.
+
+2) Q-Q Residuals: There is not a normal distribution rather it is skewed to the right. 
+
+3) Scale Location: There is non constant variance affecting the reliability of the results. 
+
+4) Residuals vs. Leverage: Observations 10, 44, and 5 have a high leverage and high residual. 
+
+```{r}
+#Linear Regression 2
+lm(finaldata$E_AGE65 ~ finaldata$E_UNEMP)
+#QQ Plot (second graph)
+plot(lm(finaldata$E_AGE65 ~ finaldata$E_UNEMP))
+```
+
+1) Residuals vs. Fitted: There is a linear relationship because the points are scattered and they form a horizontal band. 
+
+2) Q-Q Residuals: The data is skewed to the right because of the outliers on the right above the diagonal line. 
+
+3)Scale Location: There is non constant variance. 
+
+4) Residuals vs. Leverage: Observation 5, 44, and 33 have the highest influence on the model.
+
+```{r}
+#Linear Regression 3
+lm(finaldata$E_AGE65 ~ finaldata$E_NOHSDP)
+#QQ Plot (second graph)
+plot(lm(finaldata$E_AGE65 ~ finaldata$E_NOHSDP))
+```
+
+1) Residuals vs. Fitted: Due to the points being clustered there is a nonlinear relationship between no high school diploma and age. 
+
+2) Q-Q Residuals: The data is approximately normal showing that the model is valid to explain variability. 
+
+3) Scale Location: constant variance is violated causing biased results. 
+
+4) Residuals vs. Leverage: Observation 10, 44, and 5 have the highest influence on the model.
+
+#C) Bivariate Plots
+
+```{r}
+#Bivariate plots
+ggplot(data = finaldata, aes(x = E_POV, y = E_AGE65, color=ST_ABBR)) +labs(x="poverty", y="age at or over 65")+
+  geom_point()+geom_line() 
+```
+
+Graph 1: We plotted the poverty rates against the number of people aged over 65 years old for different states in the US. Contrary to what we expected, we found that higher number of people with poverty correlated with a higher number of people over 65. We had initially expected that higher rates of poverty in a state would mean that individuals would have less resources such as access to medical care than areas with a lower number of people with poverty. Therefore, we expected variables like E_AGE65 to be lower.
+
+```{r}
+ggplot(data = finaldata, aes(x = E_UNEMP, y = E_AGE65, color=ST_ABBR)) +labs(x="unemployment", y="age at or over 65") +geom_point() 
+```
+
+Graph 2: We wanted to explore how the number of people who are unemployed correlated with the number of people older than 65, separated by the states. We found that the number of people who are unemployed is positively correlated with the number of people who are above the age of 65. Although, there are a couple of outliers that have an exceedingly higher number of people over 65 even though the number of people unemployed are relatively lower.
+
+```{r}
+ggplot(data = finaldata, aes(x = E_NOHSDP, y = E_AGE65, color=ST_ABBR)) +labs(x="no high school diploma", y="age at or over 65")+ geom_point()
+```
+
+Graph 3: The graph showed higher levels of people older than 65 when there were a higher amount of people who do not have a high school diploma degree.
+
+NOTE: The main limitation of this study was that we combined the data based on the states variable. However, different states have different populations. For example, Texas has a much larger population than New Hampshire and would therefore have a higher number of people with poverty and a higher elderly population than a smaller state.
+
+```{r}
+boxplot(socialvul$E_AGE65~ socialvul$ST_ABBR, col="pink")
+ggplot(data = socialvul, aes(x= ST_ABBR, y=E_AGE65)) + geom_bar(stat="identity", fill="steelblue")+ labs(x="state", y="age at or over 65")
+```
+
+Graph 4-5: We wanted to see the number of people over the ages of 65 between different states so we used a boxplot and a bargraph to see if there are any trends. We observed that there are higher number of an elderly population in states that tend to have a higher population in general.
+
+Looking to the future, it may be interesting to see if there are datasets from other countries that we could add into the analysis. Though there may be a lot of information with such additions, an inter-country study may be able to provide more overarching insights that also take into account the differences in social vulnerability that exist not just within the US but also around the world.
+
+#D) Residual Plots
+
+1)
+
+#lmnpov <- lm(E_AGE65~E_UNEMP+E_NOHSDP, data=finaldata)
+#This variable encapsulated the linear regression model of E_AGE65 with E_UNEMP and E_NOHSDP as factor variables.
+
+#lmspov <- lm(E_AGE65~E_UNEMP+E_NOHSDP+E_POV, data=finaldata)
+#This variable encapsulated the linear regression model of E_AGE65 with E_POV and E_NOHSDP as factor variables.
+
+```{r}
+#Residual plots
+plot(xlab="residuals from model lmspov", ylab="residuals from model lmnpov", lmnpov$residual~lmspov$residual)
+```
+
+First Residual Plot Analysis (Graph 6): The first three residual plots create a scatterplot of residuals from two separate linear regression models. For the first residual graph, the lmnpov\$residual extracts the residuals which are the differences between the observed and predicted values from the linear regression model lmnpov (poverty). Similarly, lmspov$residual extracts the residuals from the linear regression model lmspov. Since the residuals from lmnpov and the residuals from lmspov do not seem to form a clear pattern, this suggests that the errors are random and are not influenced by the predictions from either regression models.
+
+2) 
+
+#lmnnohsdp <- lm(E_AGE65~E_UNEMP+E_POV, data=finaldata)
+#This variable encapsulated the linear regression model of E_AGE65 with E_UNEMP and E_NOHSDP as factor variables.
+
+#lmsnohsdp <- lm(E_AGE65~E_UNEMP+E_POV+E_NOHSDP, data=finaldata)
+#This variable encapsulated the linear regression model of E_AGE65 with E_POV and E_NOHSDP as factor variables.
+
+```{r}
+plot(xlab="residuals from model lmsnohsdp", ylab="residuals from model lmnnohsdp",lmnnohsdp$residual~lmsnohsdp$residual)
+```
+
+Second Residual Plot Analysis (Graph 7):For the second residual graph, lmnnohsdp$residual is the residual from the linear regression model lmnohsdp (no high school diploma). In addition, lmsnohsdp\$residual is the residual from the linear regression model lmsnohsdp. There seems to be a trend in this graph which would seem to point out that the linear regression models have similar patterns of error. Both models are biased as they either overestimate or underestimate the value.
+
+3) 
+
+#lmnunemp <- lm(E_AGE65~E_NOHSDP+E_POV, data=finaldata)
+#This variable encapsulated the linear regression model of E_AGE65 with E_UNEMP and E_NOHSDP as factor variables.
+
+#lmsunemp <- lm(E_AGE65~E_NOHSDP+E_POV+E_UNEMP, data=finaldata)
+#This variable encapsulated the linear regression model of E_AGE65 with E_POV and E_NOHSDP as factor variables.
+
+```{r}
+plot(xlab="residuals from model lmsunemp", ylab="residuals from model lmnunemp",lmnunemp$residual~lmsunemp$residual)
+```
+
+Third Residual Plot Analysis (Graph 8): For the third residual graph, lmnunemp$residual is the residual from the linear regression model lmnunemp (unemployment). lmsunemp\$residual is the residual from the linear regression model lmsunemp. Based on the graph, there is a pattern suggesting that these linear regression models also have similar error trends and are biased.
+
+#Conclusions
+
+The variables or factors (no high school diploma, poverty, unemployment) individually are not linearly related to the outcome variable of life expectancy (age) but they are correlated to one another. Since multicollinearity was present between the predictors which was proven by our linear regression graphs, the linear regression model was not the best model to draw the most accurate conclusions regarding the relationship between the explanatory variables and the outcome variable. Doing a regression model where we can find the best model using techniques like AIC and BIC or using a ridge regression would help with finding more conclusive results with those variables.
+
+#Future directions
+
+Our data analysis compared the total number of people who are unemployed to the total number of people who are over the age of 65. The main limitation of this study was that we combined the data based on the states variable. Due to factors like this, it would be difficult to make conclusive relationships between the various variables and total number of people over the age of 65 unless the populations between the states are normalized or a metric is used where the population in the independent variable is kept constant to ensure that the change in the dependent variable is solely due to changes in the independent variable. Future studies could keep the population constant by comparing counties with a similar population. 
+
+#Citation of dataset:
+
+<https://www.atsdr.cdc.gov/placeandhealth/svi/documentation/SVI_documentation_2018.html>
+
+ATSDR. (2022, February 10). CDC SVI Documentation 2018. Agency for Toxic Substances and Disease Registry. <https://www.atsdr.cdc.gov/placeandhealth/svi/documentation/SVI_documentation_2018.html>
+
+Thank you! :)
