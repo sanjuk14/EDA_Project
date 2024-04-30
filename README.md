@@ -1,3 +1,3 @@
 # EDA_Project
-technical writing
+
 Our project was based off of data from a Social Vulenrability Index dataset from the CDC which used 16 census variables to help communities that may require additional aid during or after a disaster. Our project specifically looked at socioeconomic status variables of poverty, age, and whether the person has a high school diploma or not. Our main goal of the project was to see if there are any correlation between these variables and life expectancy -  which could be a potential marker of social vulnerability since lower social vulnerability would mean high mortality rates and a lower life expectancy. Our group subsetted the original dataset from the CDC and aggregated and merged the dataset to focus on these variables and grouped it based on states as county values. Users can use our dataset to replicate our findings or further the research that was conducted through visualizations and regression analyses.
